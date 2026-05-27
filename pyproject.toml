@@ -1,0 +1,18 @@
+[project]
+name = "order-service"
+version = "0.1.0"
+description = "Microservice for managing customer orders"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.18.4",
+    "flask>=3.1.3",
+    "psycopg2-binary>=2.9.12",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
