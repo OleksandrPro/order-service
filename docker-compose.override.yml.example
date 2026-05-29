@@ -1,8 +1,8 @@
 services:
   order-service:
     command: >
-      sh -c "uv run alembic -c src/alembic.ini upgrade head && 
-             uv run flask --app src.main:app run --host 0.0.0.0 --port 80 --debug"
+      sh -c "PYTHONPATH=. uv run alembic -c alembic.ini upgrade head && 
+             uv run flask --app main:app run --host 0.0.0.0 --port 80 --debug"
     environment:
       - ENVIRONMENT=development
       - DEBUG=True
