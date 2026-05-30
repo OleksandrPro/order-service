@@ -27,7 +27,7 @@ class OrderService:
 
         customer = self.customer_repo.get(data.customer_id)
         if not customer:
-            raise CustomerNotFoundError()
+            raise CustomerNotFoundError(data.customer_id)
 
         items_snapshot: list[OrderItemSnapshot] = []
         total = Decimal("0")
