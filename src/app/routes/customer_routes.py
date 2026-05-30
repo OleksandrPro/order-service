@@ -20,3 +20,8 @@ def create_user():
         customer = service.create(data)
 
         return customer.model_dump(), 201
+    
+@customer_bp.get("/<int:customer_id>/orders")
+def get_customer_orders(customer_id):
+    orders = order_service.get_by_customer(customer_id)
+    return [Order.model_validate(o).model_dump() for o in orders]

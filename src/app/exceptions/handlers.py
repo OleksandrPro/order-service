@@ -3,7 +3,9 @@ from flask import jsonify
 from pydantic import ValidationError
 from app.exceptions.base import OrderServiceError
 from app.exceptions.domain import (
+    CustomerNotFoundError,
     EmailAlreadyTakenError,
+    ProductNotFoundError,
     SKUAlreadyExistsError
 )
 
@@ -11,6 +13,22 @@ from app.exceptions.domain import (
 logger = logging.getLogger(__name__)
 
 def register_error_handlers(app):
+
+    @app.errorhandler(CustomerNotFoundError)
+    def customer_not_found(error):
+        logger.warning(str(error))
+        return jsonify({
+            "error": "CUSTOMER_NOT_FOUND",
+            "message": str(error),
+        }), 404
+    
+    @app.errorhandler(ProductNotFoundError)
+    def product_not_found(error):
+        logger.warning(str(error))
+        return jsonify({
+            "error": "PRODUCT_NOT_FOUND",
+            "message": str(error),
+        }), 404
 
     @app.errorhandler(EmailAlreadyTakenError)
     def handle_email_taken(error):
