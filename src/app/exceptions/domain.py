@@ -7,3 +7,7 @@ class CustomerCreationError(OrderServiceError):
 class EmailAlreadyTakenError(OrderServiceError):
     def __init__(self, email: str):
         super().__init__(f"Email '{email}' has already been used")
+
+class SKUAlreadyExistsError(OrderServiceError):
+    def __init__(self, sku: str):
+        super().__init__(f"SKU '{sku}' already exists")

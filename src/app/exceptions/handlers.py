@@ -1,26 +1,54 @@
+import logging
 from flask import jsonify
+from pydantic import ValidationError
 from app.exceptions.base import OrderServiceError
-from app.exceptions.domain import EmailAlreadyTakenError
+from app.exceptions.domain import (
+    EmailAlreadyTakenError,
+    SKUAlreadyExistsError
+)
 
+
+logger = logging.getLogger(__name__)
 
 def register_error_handlers(app):
 
     @app.errorhandler(EmailAlreadyTakenError)
     def handle_email_taken(error):
+        logger.warning(str(error))
         return jsonify({
             "error": "EMAIL_ALREADY_TAKEN",
+            "message": str(error),
+        }), 409
+    
+    @app.errorhandler(SKUAlreadyExistsError)
+    def handle_sku_taken(error):
+        logger.warning(str(error))
+        return jsonify({
+            "error": "SKU_ALREADY_EXISTS",
             "message": str(error),
         }), 409
 
     @app.errorhandler(OrderServiceError)
     def handle_domain_error(error):
+        logger.warning(str(error))
         return jsonify({
             "error": "DOMAIN_ERROR",
             "message": str(error),
         }), 400
 
+    @app.errorhandler(ValidationError)
+    def handle_validation_error(error):
+        logger.warning(str(error))
+        return jsonify({
+            "error": "VALIDATION_ERROR",
+            "message": "Invalid request payload",
+            "details": error.errors()
+        }), 400
+
     @app.errorhandler(Exception)
     def handle_unexpected(error):
+        logger.exception("Unhandled exception", exc_info=True)
+
         return jsonify({
             "error": "INTERNAL_ERROR",
             "message": "Unexpected server error",
