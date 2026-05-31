@@ -27,6 +27,18 @@ Make sure you have installed:
 
 ## Environment Setup
 
+Clone this repository to your local machine:
+
+```bash
+git clone https://github.com/OleksandrPro/order-service.git
+```
+
+Change into the project directory:
+
+```bash
+cd order-service
+```
+
 Create `.env` file based on example:
 
 ```
@@ -54,13 +66,13 @@ cp docker-compose.override.yml.example docker-compose.override.yml
 Build and start services:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Start already built services:
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 API will be available at:
