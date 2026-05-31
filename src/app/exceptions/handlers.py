@@ -65,10 +65,18 @@ def register_error_handlers(app):
     @app.errorhandler(ValidationError)
     def handle_validation_error(error):
         logger.warning(str(error))
+
         return jsonify({
             "error": "VALIDATION_ERROR",
             "message": "Invalid request payload",
-            "details": error.errors()
+            "details": [
+                {
+                    "loc": e.get("loc"),
+                    "msg": e.get("msg"),
+                    "type": e.get("type"),
+                }
+                for e in error.errors()
+            ]
         }), 400
 
     @app.errorhandler(Exception)
