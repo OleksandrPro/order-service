@@ -20,8 +20,11 @@ class CustomerRepository:
         except IntegrityError:
             raise EmailAlreadyTakenError(data.email)
     
-    def get(self, customer_id: int) -> Customer:
+    def get(self, customer_id: int) -> Customer | None:
         query = select(CustomerModel).where(CustomerModel.id == customer_id)
         retrieved_customer = self.db_manager.get_first(query)
+
+        if retrieved_customer is None:
+            return None
 
         return Customer.model_validate(retrieved_customer)
