@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import MagicMock
 from datetime import datetime
 from decimal import Decimal
 
@@ -40,17 +41,19 @@ def product_factory():
     return factory
 
 @pytest.fixture
-def customer_service(mock_customer_repo):
-    return CustomerService(mock_customer_repo)
+def mock_uow():
+    uow = MagicMock()
+    uow.__enter__.return_value = uow
+    return uow
 
 @pytest.fixture
-def product_service(mock_product_repo):
-    return ProductService(mock_product_repo)
+def customer_service(mock_uow):
+    return CustomerService(uow=mock_uow)
 
 @pytest.fixture
-def order_service(mock_order_repo, mock_customer_repo, mock_product_repo):
-    return OrderService(
-        order_repo=mock_order_repo,
-        customer_repo=mock_customer_repo,
-        product_repo=mock_product_repo,
-    )
+def product_service(mock_uow):
+    return ProductService(uow=mock_uow)
+
+@pytest.fixture
+def order_service(mock_uow):
+    return OrderService(uow=mock_uow)
