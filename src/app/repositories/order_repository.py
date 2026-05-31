@@ -28,7 +28,12 @@ class OrderRepository:
 
         return OrderSchema.model_validate(saved, from_attributes=True)
 
-    def get_by_customer(self, customer_id: int):
-        return self.db_manager.get_all(
+    def get_by_customer(self, customer_id: int) -> list[OrderSchema]:
+        orders = self.db_manager.get_all(
             select(OrderModel).where(OrderModel.customer_id == customer_id)
         )
+
+        return [
+            OrderSchema.model_validate(o, from_attributes=True)
+            for o in orders
+        ]

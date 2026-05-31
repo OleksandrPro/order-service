@@ -1,6 +1,7 @@
 from app.db.unit_of_work import UnitOfWork
 from app.schemas import (
     CreateOrder,
+    Order
 )
 from app.exceptions.domain import (
     CustomerNotFoundError,
@@ -37,3 +38,9 @@ class OrderService:
             self.uow.product_repo.update_stock(stock_updates)
 
         return order
+    
+    def list_by_customer(self, customer_id: int) -> list[Order]:
+        with self.uow:
+            orders = self.uow.order_repo.get_by_customer(customer_id)
+
+        return orders
