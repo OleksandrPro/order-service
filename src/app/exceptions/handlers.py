@@ -1,5 +1,6 @@
 import logging
 from flask import jsonify
+from werkzeug.exceptions import HTTPException
 from pydantic import ValidationError
 from app.exceptions.base import OrderServiceError
 from app.exceptions.domain import (
@@ -13,6 +14,13 @@ from app.exceptions.domain import (
 logger = logging.getLogger(__name__)
 
 def register_error_handlers(app):
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(error):
+        return jsonify({
+            "error": error.name.upper().replace(" ", "_"),
+            "message": error.description,
+        }), error.code
 
     @app.errorhandler(CustomerNotFoundError)
     def customer_not_found(error):
