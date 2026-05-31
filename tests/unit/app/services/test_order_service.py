@@ -68,9 +68,10 @@ class TestOrderService:
         data = CreateOrder(customer_id=1, items=[CreateOrderItem(product_id=99, quantity=1)])
 
         # Act and Assert
-        with pytest.raises(ProductNotFoundError):
+        with pytest.raises(ProductNotFoundError) as exc_info:
             order_service.create(data)
-            
+        
+        assert exc_info.value.product_id == 99
         mock_customer_repo.get.assert_called_once_with(1)
         mock_product_repo.get_many.assert_called_once_with([99])
         mock_order_repo.create.assert_not_called()
@@ -177,3 +178,71 @@ class TestOrderService:
                 customer_id=1,
                 items=[]
             )
+    
+    def test_create_order_merges_duplicate_products(
+        self, order_service, mock_order_repo, mock_customer_repo, mock_product_repo, customer, product_factory
+    ):
+        # Arrange
+        mock_customer_repo.get.return_value = customer
+        mock_order_repo.create.side_effect = lambda snapshot: snapshot
+        
+        mock_product_repo.get_many.return_value = {
+            1: product_factory(id=1, price="100.00")
+        }
+        
+        data = CreateOrder(
+            customer_id=1, 
+            items=[
+                CreateOrderItem(product_id=1, quantity=2),
+                CreateOrderItem(product_id=1, quantity=3)
+            ]
+        )
+
+        # Act
+        result = order_service.create(data)
+
+        # Assert
+        mock_customer_repo.get.assert_called_once_with(1)
+        mock_product_repo.get_many.assert_called_once_with([1])
+        mock_order_repo.create.assert_called_once()
+
+        snapshot = mock_order_repo.create.call_args.args[0]
+        assert len(snapshot.items) == 1
+        assert snapshot.items[0].product_id == 1
+        assert snapshot.items[0].quantity == 5
+        assert snapshot.items[0].price_at_purchase == Decimal("100.00")
+        assert snapshot.total_amount == Decimal("500.00")
+
+        assert len(result.items) == 1
+        assert result.items[0].product_id == 1
+        assert result.items[0].quantity == 5
+        assert result.items[0].price_at_purchase == Decimal("100.00")
+        assert result.total_amount == Decimal("500.00")
+
+    def test_create_order_mixed_products_not_found(
+        self, order_service, mock_order_repo, mock_customer_repo, mock_product_repo, customer, product_factory
+    ):
+        # Arrange
+        mock_customer_repo.get.return_value = customer
+        
+        mock_product_repo.get_many.return_value = {
+            1: product_factory(id=1, price="100.00")
+        }
+        
+        data = CreateOrder(
+            customer_id=1, 
+            items=[
+                CreateOrderItem(product_id=1, quantity=1),
+                CreateOrderItem(product_id=999, quantity=1)
+            ]
+        )
+
+        # Act and Assert
+        with pytest.raises(ProductNotFoundError) as exc_info:
+            order_service.create(data)
+            
+        # Assert
+        assert exc_info.value.product_id == 999
+        mock_customer_repo.get.assert_called_once_with(1)
+        mock_product_repo.get_many.assert_called_once_with([1, 999])
+        mock_order_repo.create.assert_not_called()
