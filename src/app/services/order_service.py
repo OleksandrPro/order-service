@@ -1,19 +1,11 @@
-from decimal import Decimal
 from app.db.unit_of_work import UnitOfWork
-from app.schemas.order import (
+from app.schemas import (
     CreateOrder,
-    Order as OrderSchema,
-    OrderItemSnapshot,
-    OrderSnapshot,
 )
-from app.schemas import ProductStockUpdate
 from app.exceptions.domain import (
     CustomerNotFoundError,
-    ProductNotFoundError,
-    InsufficientStockError
 )
 from app.services.helpers import (
-    OrderItemsNormalizer,
     OrderBuilder
 )
 
