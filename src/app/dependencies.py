@@ -11,39 +11,33 @@ from app.repositories import OrderRepository
 from app.services.order_service import OrderService
 
 
-def get_customer_repository(session: Session) -> CustomerRepository:
-    return CustomerRepository(DatabaseManager(session))
+def get_db_manager(session: Session) -> DatabaseManager:
+    return DatabaseManager(session)
 
-def get_product_repository(session: Session) -> ProductRepository:
-    return ProductRepository(DatabaseManager(session))
+def get_customer_repository(db_manager: DatabaseManager) -> CustomerRepository:
+    return CustomerRepository(db_manager)
 
-def get_order_repository(session: Session) -> OrderRepository:
-    return OrderRepository(DatabaseManager(session))
+def get_product_repository(db_manager: DatabaseManager) -> ProductRepository:
+    return ProductRepository(db_manager)
+
+def get_order_repository(db_manager: DatabaseManager) -> OrderRepository:
+    return OrderRepository(db_manager)
 
 def get_uow(session: Session) -> UnitOfWork:
-    return UnitOfWork(DatabaseManager(session))
+    db_manager = get_db_manager(session)
+    customer_repo = get_customer_repository(db_manager)
+    product_repo = get_product_repository(db_manager)
+    order_repo = get_order_repository(db_manager)
+    return UnitOfWork(db_manager, customer_repo, product_repo, order_repo)
 
 def get_customer_service(session: Session) -> CustomerService:
-    repo = get_customer_repository(session)
     uow = get_uow(session)
-    return CustomerService(repo, uow=uow)
-
+    return CustomerService(uow=uow)
 
 def get_product_service(session: Session) -> ProductService:
-    repo = get_product_repository(session)
     uow = get_uow(session)
-    return ProductService(repo, uow=uow)
-
+    return ProductService(uow=uow)
 
 def get_order_service(session: Session) -> OrderService:
-    order_repo = get_order_repository(session)
-    customer_repo = get_customer_repository(session)
-    product_repo = get_product_repository(session)
     uow = get_uow(session)
-    
-    return OrderService(
-        order_repo=order_repo,
-        customer_repo=customer_repo,
-        product_repo=product_repo,
-        uow=uow
-    )
+    return OrderService(uow=uow)
