@@ -12,8 +12,9 @@ from app.exceptions.domain import (
     ProductNotFoundError,
     InsufficientStockError
 )
-from app.services.helpers.order_items_normalizer import (
+from app.services.helpers import (
     OrderItemsNormalizer,
+    OrderBuilder
 )
 
 
@@ -24,60 +25,22 @@ class OrderService:
     ):
         self.uow = uow
 
-    def create(self, data: CreateOrder) -> OrderSchema:
+    def create(self, data: CreateOrder):
 
         with self.uow:
             customer = self.uow.customer_repo.get(data.customer_id)
             if not customer:
                 raise CustomerNotFoundError(data.customer_id)
-            
-            normalized_items = OrderItemsNormalizer.merge_duplicates(data.items)    
 
-            product_ids = [
-                item.product_id
-                for item in normalized_items
-            ]
-
+            product_ids = [i.product_id for i in data.items]
             products = self.uow.product_repo.get_many(product_ids)
 
-            items_snapshot: list[OrderItemSnapshot] = []
-            stock_updates: list[ProductStockUpdate] = []
-            total = Decimal("0")
-
-            for item in normalized_items:
-                product = products.get(item.product_id)
-
-                if not product:
-                    raise ProductNotFoundError(item.product_id)
-                
-                if item.quantity > product.stock:
-                    raise InsufficientStockError(
-                        item.product_id, 
-                        requested=item.quantity,
-                        in_stock=product.stock
-                    )
-
-                snapshot_item = OrderItemSnapshot(
-                    product_id=product.id,
-                    quantity=item.quantity,
-                    price_at_purchase=product.price,
-                )
-
-                stock_update = ProductStockUpdate(
-                    product_id=product.id,
-                    stock=product.stock - item.quantity,
-                )
-
-                items_snapshot.append(snapshot_item)
-                stock_updates.append(stock_update)
-                total += product.price * item.quantity
-
-            order_snapshot = OrderSnapshot(
+            order_snapshot, stock_updates = OrderBuilder.build(
                 customer_id=data.customer_id,
-                items=items_snapshot,
-                total_amount=total,
+                items=data.items,
+                products=products,
             )
-        
+
             order = self.uow.order_repo.create(order_snapshot)
             self.uow.product_repo.update_stock(stock_updates)
 
