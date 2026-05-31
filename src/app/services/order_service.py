@@ -10,6 +10,9 @@ from app.exceptions.domain import (
     CustomerNotFoundError,
     ProductNotFoundError
 )
+from app.services.helpers.order_items_normalizer import (
+    OrderItemsNormalizer,
+)
 
 
 class OrderService:
@@ -28,12 +31,21 @@ class OrderService:
         customer = self.customer_repo.get(data.customer_id)
         if not customer:
             raise CustomerNotFoundError(data.customer_id)
+        
+        normalized_items = OrderItemsNormalizer.merge_duplicates(data.items)    
+
+        product_ids = [
+            item.product_id
+            for item in normalized_items
+        ]
+
+        products = self.product_repo.get_many(product_ids)
 
         items_snapshot: list[OrderItemSnapshot] = []
         total = Decimal("0")
 
-        for item in data.items:
-            product = self.product_repo.get(item.product_id)
+        for item in normalized_items:
+            product = products.get(item.product_id)
 
             if not product:
                 raise ProductNotFoundError(item.product_id)
