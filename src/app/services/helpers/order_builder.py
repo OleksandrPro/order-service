@@ -1,6 +1,6 @@
 from decimal import Decimal
 from app.schemas import (
-    CreateOrder,
+    CreateOrderItem,
     OrderItemSnapshot, 
     OrderSnapshot,
     ProductStockUpdate, 
@@ -12,7 +12,7 @@ from app.services.helpers.order_items_normalizer import OrderItemsNormalizer
 
 class OrderBuilder:
     @staticmethod
-    def build(customer_id, items: list[CreateOrder], products: dict[int, Product]):
+    def build(customer_id, items: list[CreateOrderItem], products: dict[int, Product]):
         normalized_items = OrderItemsNormalizer.merge_duplicates(items)
 
         items_snapshot = []
