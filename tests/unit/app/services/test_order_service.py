@@ -51,9 +51,10 @@ class TestOrderService:
         data = CreateOrder(customer_id=99, items=[CreateOrderItem(product_id=1, quantity=1)])
 
         # Act and Assert
-        with pytest.raises(CustomerNotFoundError):
+        with pytest.raises(CustomerNotFoundError) as exc_info:
             order_service.create(data)
-            
+        
+        assert exc_info.value.customer_id == 99
         mock_customer_repo.get.assert_called_once_with(99)
         mock_order_repo.create.assert_not_called()
 

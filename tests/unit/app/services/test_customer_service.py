@@ -26,5 +26,7 @@ class TestCustomerService:
         mock_customer_repo.create.side_effect = EmailAlreadyTakenError("taken@example.com")
         
         # Act and Assert
-        with pytest.raises(EmailAlreadyTakenError):
+        with pytest.raises(EmailAlreadyTakenError) as exc_info:
             customer_service.create(data)
+        
+        assert exc_info.value.email == "taken@example.com"

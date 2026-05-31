@@ -28,5 +28,7 @@ class TestProductService:
         mock_product_repo.create.side_effect = SKUAlreadyExistsError("DUPLICATE-SKU")
         
         # Act and Assert
-        with pytest.raises(SKUAlreadyExistsError):
+        with pytest.raises(SKUAlreadyExistsError) as exc_info:
             product_service.create(data)
+        
+        assert exc_info.value.sku == "DUPLICATE-SKU"
