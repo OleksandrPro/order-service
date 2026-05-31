@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import MagicMock
 from decimal import Decimal
 from pydantic import ValidationError
 
@@ -219,3 +220,27 @@ class TestOrderService:
 
         mock_uow.order_repo.create.assert_not_called()
         mock_uow.product_repo.update_stock.assert_not_called()
+
+    def test_list_by_customer_returns_orders(self, order_service, mock_uow):
+        # Arrange
+        orders = [MagicMock(), MagicMock()]
+
+        mock_uow.order_repo.get_by_customer.return_value = orders
+
+        # Act
+        result = order_service.list_by_customer(10)
+
+        # Assert
+        mock_uow.order_repo.get_by_customer.assert_called_once_with(10)
+        assert result == orders
+
+    def test_list_by_customer_returns_empty_list_when_no_orders(self, order_service, mock_uow):
+        # Arrange
+        mock_uow.order_repo.get_by_customer.return_value = []
+
+        # Act
+        result = order_service.list_by_customer(999)
+
+        # Assert
+        mock_uow.order_repo.get_by_customer.assert_called_once_with(999)
+        assert result == []
