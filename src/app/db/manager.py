@@ -1,5 +1,5 @@
-from typing import TypeVar, Optional, Sequence
-from sqlalchemy import Executable
+from typing import TypeVar, Optional, Sequence, Any
+from sqlalchemy import Executable, update
 from sqlalchemy.orm import Session 
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from .models import Base
@@ -42,4 +42,14 @@ class DatabaseManager:
         except SQLAlchemyError:
             # logger.exception(err_msg)
             raise
+    
+    def bulk_update(self, model: type[T], values: list[dict[str, Any]], err_msg: str = "Error executing bulk update") -> None:
+        if not values:
+            return
 
+        try:
+            self.session.execute(update(model), values)
+            self.session.commit()
+        except SQLAlchemyError:
+            self.session.rollback()
+            raise

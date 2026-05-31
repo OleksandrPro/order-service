@@ -4,6 +4,7 @@ from .customer import (
 )
 from .product import (
     CreateProduct,
+    ProductStockUpdate,
     Product
 )
 

@@ -8,6 +8,9 @@ class CreateProduct(BaseModel):
     price: Decimal = Field(gt=0)
     stock: int = Field(ge=0, default=0)
 
+class ProductStockUpdate(BaseModel):
+    product_id: int
+    stock: int
 
 class Product(BaseModel):
     id: int

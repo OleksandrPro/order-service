@@ -6,9 +6,11 @@ from app.schemas.order import (
     OrderItemSnapshot,
     OrderSnapshot,
 )
+from app.schemas import ProductStockUpdate
 from app.exceptions.domain import (
     CustomerNotFoundError,
-    ProductNotFoundError
+    ProductNotFoundError,
+    InsufficientStockError
 )
 from app.services.helpers.order_items_normalizer import (
     OrderItemsNormalizer,
@@ -42,6 +44,7 @@ class OrderService:
         products = self.product_repo.get_many(product_ids)
 
         items_snapshot: list[OrderItemSnapshot] = []
+        stock_updates: list[ProductStockUpdate] = []
         total = Decimal("0")
 
         for item in normalized_items:
@@ -49,6 +52,13 @@ class OrderService:
 
             if not product:
                 raise ProductNotFoundError(item.product_id)
+            
+            if item.quantity > product.stock:
+                raise InsufficientStockError(
+                    item.product_id, 
+                    requested=item.quantity,
+                    in_stock=product.stock
+                )
 
             snapshot_item = OrderItemSnapshot(
                 product_id=product.id,
@@ -56,7 +66,13 @@ class OrderService:
                 price_at_purchase=product.price,
             )
 
+            stock_update = ProductStockUpdate(
+                product_id=product.id,
+                stock=product.stock - item.quantity,
+            )
+
             items_snapshot.append(snapshot_item)
+            stock_updates.append(stock_update)
             total += product.price * item.quantity
 
         order_snapshot = OrderSnapshot(
@@ -65,4 +81,4 @@ class OrderService:
             total_amount=total,
         )
 
-        return self.order_repo.create(order_snapshot)
+        return self.order_repo.create(order_snapshot, stock_updates)
