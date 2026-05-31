@@ -80,5 +80,8 @@ class OrderService:
             items=items_snapshot,
             total_amount=total,
         )
-
-        return self.order_repo.create(order_snapshot, stock_updates)
+        
+        order = self.order_repo.create(order_snapshot)
+        self.product_repo.update_stock(stock_updates)
+        
+        return order
