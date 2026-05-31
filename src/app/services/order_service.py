@@ -1,4 +1,5 @@
 from decimal import Decimal
+from app.db.unit_of_work import UnitOfWork
 from app.repositories import CustomerRepository, ProductRepository, OrderRepository
 from app.schemas.order import (
     CreateOrder,
@@ -22,11 +23,13 @@ class OrderService:
             self, 
             order_repo: OrderRepository, 
             customer_repo: CustomerRepository, 
-            product_repo: ProductRepository
+            product_repo: ProductRepository,
+            uow: UnitOfWork
     ):
         self.order_repo = order_repo
         self.customer_repo = customer_repo
         self.product_repo = product_repo
+        self.uow = uow
 
     def create(self, data: CreateOrder) -> OrderSchema:
 
@@ -81,7 +84,8 @@ class OrderService:
             total_amount=total,
         )
         
-        order = self.order_repo.create(order_snapshot)
-        self.product_repo.update_stock(stock_updates)
-        
+        with self.uow:
+            order = self.order_repo.create(order_snapshot)
+            self.product_repo.update_stock(stock_updates)
+
         return order

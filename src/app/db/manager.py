@@ -12,44 +12,37 @@ class DatabaseManager:
     def __init__(self, session: Session):
         self.session = session
 
-    def add_record(self, model_instance: T, err_msg: str = "Error adding record") -> T:
-        try:
-            self.session.add(model_instance)
-            self.session.commit()
-            self.session.refresh(model_instance)
-            return model_instance
-        except IntegrityError:
-            self.session.rollback()
-            # logger.warning(f"Integrity error (duplicate?): {err_msg}")
-            raise
-        except SQLAlchemyError:
-            self.session.rollback()
-            # logger.exception(err_msg)
-            raise
+    def add_record(self, model_instance: T) -> T:
+        self.session.add(model_instance)
+        self.session.flush()
+        self.session.refresh(model_instance)
+        return model_instance
 
-    def get_first(self, query: Executable, err_msg: str = "Error executing query") -> Optional[T]:
-        try:
-            result = self.session.scalars(query)
-            return result.first()
-        except SQLAlchemyError:
-            # logger.exception(err_msg)
-            raise
+    def get_first(self, query: Executable) -> Optional[T]:
+        result = self.session.scalars(query)
+        return result.first()
 
-    def get_all(self, query: Executable, err_msg: str = "Error fetching record list") -> Sequence[T]:
-        try:
-            result = self.session.scalars(query)
-            return result.all()
-        except SQLAlchemyError:
-            # logger.exception(err_msg)
-            raise
-    
-    def bulk_update(self, model: type[T], values: list[dict[str, Any]], err_msg: str = "Error executing bulk update") -> None:
+    def get_all(self, query: Executable) -> Sequence[T]:
+        result = self.session.scalars(query)
+        return result.all()
+
+    def bulk_update(
+        self,
+        model: type[T],
+        values: list[dict[str, Any]],
+    ) -> None:
         if not values:
             return
 
+        self.session.execute(update(model), values)
+        self.session.flush()
+
+    def commit(self) -> None:
         try:
-            self.session.execute(update(model), values)
             self.session.commit()
         except SQLAlchemyError:
-            self.session.rollback()
+            self.rollback()
             raise
+
+    def rollback(self) -> None:
+        self.session.rollback()
