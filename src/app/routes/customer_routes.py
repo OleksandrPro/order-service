@@ -16,7 +16,16 @@ def create_user():
         customer = service.create(data)
 
         return customer.model_dump(), 201
-    
+
+@customer_bp.get("/")
+def get_all_customers():
+    with SessionFactory() as session:
+        service = get_customer_service(session)
+
+        customers = service.get_all()
+
+        return [customer.model_dump() for customer in customers], 200
+
 @customer_bp.get("/<int:customer_id>/orders")
 def get_customer_orders(customer_id):
     with SessionFactory() as session:

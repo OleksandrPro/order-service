@@ -27,6 +27,12 @@ class ProductRepository:
             return None
 
         return ProductSchema.model_validate(result)
+    
+    def get_all(self) -> list[ProductSchema]:
+        query = select(ProductModel)
+        all_products = self.db_manager.get_all(query)
+
+        return [ProductSchema.model_validate(product) for product in all_products]
 
     def get_many(self, product_ids: list[int]) -> dict[int, ProductSchema]:
         query = select(ProductModel).where(ProductModel.id.in_(product_ids))

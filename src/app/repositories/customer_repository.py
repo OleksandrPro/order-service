@@ -28,3 +28,9 @@ class CustomerRepository:
             return None
 
         return Customer.model_validate(retrieved_customer)
+    
+    def get_all(self) -> list[Customer]:
+        query = select(CustomerModel)
+        all_customers = self.db_manager.get_all(query)
+
+        return [Customer.model_validate(customer) for customer in all_customers]

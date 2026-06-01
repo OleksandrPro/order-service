@@ -16,3 +16,11 @@ def create_product():
         product = service.create(data)
 
         return product.model_dump(), 201
+
+@product_bp.get("/")
+def get_all_products():
+    with SessionFactory() as session:
+        service = get_product_service(session)
+        products = service.get_all()
+
+        return [product.model_dump() for product in products], 200

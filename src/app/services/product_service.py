@@ -14,3 +14,9 @@ class ProductService:
             product = self.uow.product_repo.create(data)
 
         return product
+
+    def get_all(self) -> list[Product]:
+        with self.uow:
+            products = self.uow.product_repo.get_all()
+
+        return products

@@ -14,3 +14,9 @@ class CustomerService:
             customer = self.uow.customer_repo.create(data)
 
         return customer
+    
+    def get_all(self) -> list[Customer]:
+        with self.uow:
+            customers = self.uow.customer_repo.get_all()
+
+        return customers
