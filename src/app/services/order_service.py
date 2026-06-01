@@ -41,6 +41,11 @@ class OrderService:
     
     def list_by_customer(self, customer_id: int) -> list[Order]:
         with self.uow:
+            customer = self.uow.customer_repo.get(customer_id)
+
+            if not customer:
+                raise CustomerNotFoundError(customer_id)
+
             orders = self.uow.order_repo.get_by_customer(customer_id)
 
         return orders
