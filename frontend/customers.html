@@ -1,15 +1,22 @@
-<script type="module" src="/src/components/Header.ts"></script>
-  
-<app-header></app-header>
+<head>
+  <meta charset="UTF-8">
+  <title>Customers</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <script type="module" src="/src/components/Header.ts"></script>
+    
+  <app-header></app-header>
 
-<h2>Customers</h2>
+  <h2>Customers</h2>
 
-<form id="customer-form">
-  <input id="customer-name" placeholder="Name" required />
-  <input id="customer-email" type="email" placeholder="Email" required />
-  <button type="submit">Create</button>
-</form>
+  <form id="customer-form">
+    <input id="customer-name" placeholder="Name" required />
+    <input id="customer-email" type="email" placeholder="Email" required />
+    <button type="submit">Create</button>
+  </form>
 
-<div id="customer-list">Loading customers...</div>
+  <div id="customer-list">Loading customers...</div>
 
-<script type="module" src="/src/customers.ts"></script>
+  <script type="module" src="/src/pages/customers.ts"></script>
+</body>

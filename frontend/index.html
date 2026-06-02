@@ -1,3 +1,49 @@
-<script type="module" src="/src/components/Header.ts"></script>
-  
-<app-header></app-header>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Order Service - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <script type="module" src="/src/components/Header.ts"></script>
+    <app-header></app-header>
+
+    <main>
+      <div class="dashboard-welcome">
+        <h2>System Overview</h2>
+        <p>Current database statistics</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dash-card stat-card">
+          <h3>👥 Customers</h3>
+          <div class="stat-value" id="stat-customers">...</div>
+        </div>
+        <div class="dash-card stat-card">
+          <h3>📦 Products</h3>
+          <div class="stat-value" id="stat-products">...</div>
+        </div>
+        <div class="dash-card stat-card">
+          <h3>🛒 Orders</h3>
+          <div class="stat-value" id="stat-orders">...</div>
+        </div>
+      </div>
+
+      <h3 style="text-align: center; margin-bottom: 1.5rem; color: #0f172a;">Manage System</h3>
+      <div class="dashboard-grid">
+        <a href="/customers.html" class="dash-card action-card">
+          <strong>[ Manage Customers ]</strong>
+        </a>
+        <a href="/products.html" class="dash-card action-card">
+          <strong>[ Manage Products ]</strong>
+        </a>
+        <a href="/orders.html" class="dash-card action-card">
+          <strong>[ Manage Orders ]</strong>
+        </a>
+      </div>
+    </main>
+
+    <script type="module" src="/src/pages/dashboard.ts"></script>
+  </body>
+</html>

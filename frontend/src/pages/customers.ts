@@ -1,7 +1,8 @@
-// src/customers.ts
-import { getCustomers, createCustomer } from "./api/customerApi";
-import { mustGet } from "./utils/dom";
-import { type Customer, type CustomerCreateDTO } from "./types";
+import { getCustomers, createCustomer } from "../api/customerApi";
+import { mustGet } from "../utils/dom";
+import { sortById } from "../utils/sort";
+import { type Customer, type CustomerCreateDTO } from "../types";
+import { renderCustomer } from "../renderers/customerRenderer";
 
 class CustomerPage {
   private listEl: HTMLDivElement;
@@ -24,28 +25,24 @@ class CustomerPage {
     await this.loadCustomers();
   }
 
-  private renderCustomer(c: Customer): string {
-    return `
-      <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
-        <strong>#${c.id}</strong> | ${c.name} | <a href="mailto:${c.email}">${c.email}</a>
-      </div>
-    `;
-  }
-
   private async loadCustomers() {
     try {
       this.listEl.innerHTML = "Loading customers...";
-      const customers: Customer[] = await getCustomers();
+      const customers: Customer[] = sortById(await getCustomers());
 
       if (!customers.length) {
         this.listEl.innerHTML = "<p>No customers found.</p>";
         return;
       }
 
-      this.listEl.innerHTML = customers.map(c => this.renderCustomer(c)).join("");
+      this.listEl.innerHTML = customers.map(c => renderCustomer(c)).join("");
     } catch (error: any) {
       console.error(error);
-      this.listEl.innerHTML = `<p style="color: red;">Failed to load data: ${error.message}</p>`;
+      this.listEl.innerHTML = `
+        <p class="error-message">
+          Failed to load data: ${error.message}
+        </p>
+      `;
     }
   }
 

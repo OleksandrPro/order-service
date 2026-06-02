@@ -41,3 +41,10 @@ export interface OrderCreateDTO {
   customer_id: number;
   items: OrderItem[];
 }
+
+export interface CartItem {
+  product_id: number;
+  name: string;
+  price: number;
+  quantity: number;
+}

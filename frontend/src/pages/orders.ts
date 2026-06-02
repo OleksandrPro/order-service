@@ -1,9 +1,11 @@
-import { createOrder, getOrdersByCustomer } from "./api/orderApi";
-import { getCustomers } from "./api/customerApi";
-import { getProducts } from "./api/productApi";
-import { mustGet, toNumber } from "./utils/dom";
-import { type Customer, type Product, type Order, type OrderCreateDTO } from "./types";
-import { CartManager } from "./cart";
+import { createOrder, getOrdersByCustomer } from "../api/orderApi";
+import { getCustomers } from "../api/customerApi";
+import { getProducts } from "../api/productApi";
+import { mustGet, toNumber } from "../utils/dom";
+import { sortById } from "../utils/sort";
+import { type Customer, type Product, type OrderCreateDTO } from "../types";
+import { CartManager } from "../managers/cart";
+import { renderOrderCard } from "../renderers/orderRenderer";
 
 class OrdersPage {
   private customerSelect: HTMLSelectElement;
@@ -45,9 +47,9 @@ class OrdersPage {
         getCustomers(),
         getProducts()
       ]);
-
-      this.populateCustomers(customers);
-      this.populateProducts(products);
+      
+      this.populateCustomers(sortById(customers));
+      this.populateProducts(sortById(products));
     } catch (error: any) {
       alert(`Initialization failed: ${error.message}`);
     }
@@ -119,25 +121,6 @@ class OrdersPage {
     }
   }
 
-  private renderOrderCard(order: Order): string {
-    const itemsDetails = order.items.map((i) => {
-      const productName = this.productsMap.get(i.product_id)?.name ?? "Unknown Product";
-      return `
-        <li style="margin-left: 20px;">
-          ${productName} | Qty: ${i.quantity} | Price: $${i.price_at_purchase ?? 'N/A'}
-        </li>
-      `;
-    }).join("");
-
-    return `
-      <div style="border: 1px solid #ccc; border-radius: 4px; padding: 10px; margin-top: 10px;">
-        <h4 style="margin: 0 0 10px 0;">Order #${order.id} | Total: $${order.total_amount ?? 0}</h4>
-        <ul style="margin: 0; padding: 0; list-style-type: none;">
-          ${itemsDetails}
-        </ul>
-      </div>
-    `;
-  }
 
   private async handleLoadOrders() {
     const customerId = toNumber(this.searchCustomer.value);
@@ -146,16 +129,20 @@ class OrdersPage {
     this.ordersList.innerHTML = "Loading orders...";
 
     try {
-      const orders = await getOrdersByCustomer(customerId);
+      const orders = sortById(await getOrdersByCustomer(customerId));
       
       if (!orders.length) {
         this.ordersList.innerHTML = "<p>No orders found for this customer.</p>";
         return;
       }
 
-      this.ordersList.innerHTML = orders.map(o => this.renderOrderCard(o)).join("");
+      this.ordersList.innerHTML = orders.map(order => renderOrderCard(order, this.productsMap)).join("");
     } catch (error: any) {
-      this.ordersList.innerHTML = `<p style="color: red;">Failed to load orders: ${error.message}</p>`;
+      this.ordersList.innerHTML = `
+        <p class="error-message">
+          Failed to load orders: ${error.message}
+        </p>
+      `;
     }
   }
 

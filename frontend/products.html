@@ -1,18 +1,25 @@
-<script type="module" src="/src/components/Header.ts"></script>
-  
-<app-header></app-header>
+<head>
+  <meta charset="UTF-8">
+  <title>Products</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <script type="module" src="/src/components/Header.ts"></script>
+    
+  <app-header></app-header>
 
 
-<h2>Products</h2>
+  <h2>Products</h2>
 
-<form id="form">
-  <input id="name" placeholder="Name" />
-  <input id="sku" placeholder="SKU" />
-  <input id="price" placeholder="Price" />
-  <input id="stock" placeholder="Stock" />
-  <button>Create</button>
-</form>
+  <form id="form">
+    <input id="name" placeholder="Name" />
+    <input id="sku" placeholder="SKU" />
+    <input id="price" placeholder="Price" />
+    <input id="stock" placeholder="Stock" />
+    <button>Create</button>
+  </form>
 
-<div id="list"></div>
+  <div id="list"></div>
 
-<script type="module" src="/src/products.ts"></script>
+  <script type="module" src="/src/pages/products.ts"></script>
+</body>

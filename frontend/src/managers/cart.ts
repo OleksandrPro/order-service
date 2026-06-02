@@ -1,11 +1,6 @@
-import { mustGet } from "./utils/dom";
-
-export interface CartItem {
-  product_id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
+import { mustGet } from "../utils/dom";
+import { renderCartItem } from "../renderers/cartItemRenderer";
+import { type CartItem } from "../types";
 
 export class CartManager {
   private items: CartItem[] = [];
@@ -44,22 +39,12 @@ export class CartManager {
     this.render();
   }
 
-  private renderItem(item: CartItem, index: number): string {
-    const total = (item.price * item.quantity).toFixed(2);
-    return `
-      <div style="margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
-        <span>${item.name} | Qty: ${item.quantity} | Total: $${total}</span>
-        <button data-index="${index}" class="remove-btn">X</button>
-      </div>
-    `;
-  }
-
   private render() {
     if (this.isEmpty()) {
       this.container.innerHTML = "<p>Cart is empty.</p>";
       return;
     }
-    this.container.innerHTML = this.items.map((item, i) => this.renderItem(item, i)).join("");
+    this.container.innerHTML = this.items.map((item, i) => renderCartItem(item, i)).join("");
   }
 
   private bindEvents() {

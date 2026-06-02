@@ -1,36 +1,43 @@
-<script type="module" src="/src/components/Header.ts"></script>
-  
-<app-header></app-header>
+<head>
+  <meta charset="UTF-8">
+  <title>Orders</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <script type="module" src="/src/components/Header.ts"></script>
+    
+  <app-header></app-header>
 
 
-<h2>Create Order</h2>
+  <h2>Create Order</h2>
 
-<div id="order-builder">
-  <label>Customer</label>
-  <select id="order-customer"></select>
+  <div id="order-builder">
+    <label>Customer</label>
+    <select id="order-customer"></select>
+
+    <hr />
+    
+    <label>Product</label>
+    <select id="order-product"></select>
+
+    <label>Quantity</label>
+    <input id="order-qty" type="number" min="1" value="1" />
+
+    <button id="add-item-btn">Add to Cart</button>
+  </div>
+
+  <h3>Cart</h3>
+  <div id="cart-list">Cart is empty.</div>
+
+  <button id="submit-order-btn" style="margin-top: 15px;">Submit Order</button>
 
   <hr />
-  
-  <label>Product</label>
-  <select id="order-product"></select>
 
-  <label>Quantity</label>
-  <input id="order-qty" type="number" min="1" value="1" />
+  <h3>Search Orders by Customer</h3>
+  <select id="search-customer"></select>
+  <button id="load-orders-btn">Load</button>
 
-  <button id="add-item-btn">Add to Cart</button>
-</div>
+  <div id="orders-list"></div>
 
-<h3>Cart</h3>
-<div id="cart-list">Cart is empty.</div>
-
-<button id="submit-order-btn" style="margin-top: 15px;">Submit Order</button>
-
-<hr />
-
-<h3>Search Orders by Customer</h3>
-<select id="search-customer"></select>
-<button id="load-orders-btn">Load</button>
-
-<div id="orders-list"></div>
-
-<script type="module" src="/src/orders.ts"></script>
+  <script type="module" src="/src/pages/orders.ts"></script>
+</body>

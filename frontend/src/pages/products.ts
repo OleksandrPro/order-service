@@ -1,6 +1,8 @@
-import { getProducts, createProduct } from "./api/productApi";
-import { mustGet, toNumber } from "./utils/dom";
-import { type Product, type ProductCreateDTO } from "./types";
+import { getProducts, createProduct } from "../api/productApi";
+import { mustGet, toNumber } from "../utils/dom";
+import { sortById } from "../utils/sort";
+import { type Product, type ProductCreateDTO } from "../types";
+import { renderProduct } from "../renderers/productRenderer";
 
 class ProductsPage {
   private listEl: HTMLDivElement;
@@ -27,39 +29,34 @@ class ProductsPage {
     await this.loadProducts();
   }
 
-  private renderProduct(p: Product): string {
-    return `
-      <div style="padding: 8px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-        <span><strong>#${p.id}</strong> | ${p.name} <small>(SKU: ${p.sku})</small></span>
-        <span>$${p.price} | Stock: ${p.stock}</span>
-      </div>
-    `;
-  }
-
   private async loadProducts() {
     try {
       this.listEl.innerHTML = "Loading products...";
-      const products: Product[] = await getProducts();
+      const products: Product[] = sortById(await getProducts());
 
       if (!products.length) {
         this.listEl.innerHTML = "<p>No products found.</p>";
         return;
       }
 
-      this.listEl.innerHTML = products.map(p => this.renderProduct(p)).join("");
+      this.listEl.innerHTML = products.map(p => renderProduct(p)).join("");
     } catch (error: any) {
       console.error(error);
       this.listEl.innerHTML = `<p style="color: red;">Failed to load data: ${error.message}</p>`;
     }
   }
 
-  private validateInput(name: string, sku: string, price: number | null, stock: number | null): boolean {
-    if (!name || !sku) {
-      alert("Name and SKU are required");
+  private validateInput(name: string, sku: string, price: number, stock: number): boolean {
+    if (!name || !sku || !price || !stock) {
+      alert("All fields are required");
       return false;
     }
     if (price === null || price <= 0) {
       alert("Price must be greater than 0");
+      return false;
+    }
+    if (!/^\d+(\.\d{1,2})?$/.test(price.toString())) {
+      alert("Price can have a maximum of 2 decimal places");
       return false;
     }
     if (stock === null || stock < 0) {
@@ -77,6 +74,11 @@ class ProductsPage {
       const sku = this.skuInput.value.trim();
       const price = toNumber(this.priceInput.value);
       const stock = toNumber(this.stockInput.value);
+
+      if (price === null || stock === null) {
+        alert("Please enter valid numbers for Price and Stock");
+        return;
+      }
 
       if (!this.validateInput(name, sku, price, stock)) return;
 
