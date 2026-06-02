@@ -10,6 +10,7 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "pydantic[email]>=2.13.4",
     "pydantic-settings>=2.14.1",
+    "flask-cors>=6.0.2",
 ]
 
 [dependency-groups]
