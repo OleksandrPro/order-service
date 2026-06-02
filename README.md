@@ -79,6 +79,29 @@ API will be available at:
 http://localhost:8000
 
 
+##  Frontend
+
+Change into the project directory:
+
+```bash
+cd frontend
+```
+
+
+Install dependencies:
+```bash
+npm install
+```
+
+Run:
+```bash
+npm run dev
+```
+
+Frontent will be available in your browser at:
+http://localhost:5173
+
+
 ##  Running tests
 1. Create virtual environment
 ```bash
